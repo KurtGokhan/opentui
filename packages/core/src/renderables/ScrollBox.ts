@@ -91,14 +91,12 @@ export class ScrollBoxRenderable extends BoxRenderable {
       overflow: "scroll",
       maxHeight: "100%",
       maxWidth: "100%",
-      buffered: true,
       ...viewportOptions,
     })
     this.wrapper.add(this.viewport)
 
     this.content = new BoxRenderable(ctx, {
       alignSelf: "flex-start",
-      buffered: true,
       ...contentOptions,
     })
     this.verticalScrollBar = new ScrollBarRenderable(ctx, {
