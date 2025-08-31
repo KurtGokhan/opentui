@@ -16,7 +16,7 @@ export type ScrollUnit = "absolute" | "viewport" | "content" | "step"
 
 export class ScrollBarRenderable extends Renderable {
   public readonly track: BoxRenderable
-  public readonly thumb: BoxRenderable
+  public readonly thumb: ThumbRenderable
   public readonly startArrow: BoxRenderable
   public readonly endArrow: BoxRenderable
   public readonly orientation: "vertical" | "horizontal"
@@ -43,6 +43,7 @@ export class ScrollBarRenderable extends Renderable {
   set scrollSize(value: number) {
     if (value === this.scrollSize) return
     this._scrollSize = value
+    this.recalculateVisibility()
     this.scrollPosition = this.scrollPosition
   }
 
@@ -52,12 +53,12 @@ export class ScrollBarRenderable extends Renderable {
       this._scrollPosition = newPosition
       this.emit("change", { position: newPosition })
     }
-    this.recalculateThumbDimensions()
   }
 
   set viewportSize(value: number) {
     if (value === this.viewportSize) return
     this._viewportSize = value
+    this.recalculateVisibility()
     this.scrollPosition = this.scrollPosition
   }
 
@@ -132,7 +133,8 @@ export class ScrollBarRenderable extends Renderable {
     this.add(this.track)
     this.add(this.endArrow)
 
-    this.thumb = new BoxRenderable(ctx, {
+    this.thumb = new ThumbRenderable(ctx, {
+      scrollbar: this,
       ...(orientation === "vertical"
         ? {
             width: "100%",
@@ -223,18 +225,41 @@ export class ScrollBarRenderable extends Renderable {
     this.scrollPosition += resolvedDelta
   }
 
-  private recalculateThumbDimensions(): void {
-    const sizeRatio =
-      this.scrollSize <= this.viewportSize ? 100 : Math.round((this.viewportSize / this.scrollSize) * 100)
+  private recalculateVisibility(): void {
+    const sizeRatio = this.scrollSize <= this.viewportSize ? 1 : this.viewportSize / this.scrollSize
 
-    if (this.orientation === "vertical") this.thumb.height = `${sizeRatio}%`
-    else this.thumb.width = `${sizeRatio}%`
+    this.visible = sizeRatio < 1
+  }
+}
 
-    const posRatio = Math.round((this.scrollPosition / this.scrollSize) * 100)
+class ThumbRenderable extends BoxRenderable {
+  private readonly scrollbar: ScrollBarRenderable
 
-    if (this.orientation === "vertical") this.thumb.top = `${posRatio}%`
-    else this.thumb.left = `${posRatio}%`
+  constructor(ctx: RenderContext, options: BoxOptions & { scrollbar: ScrollBarRenderable }) {
+    super(ctx, options)
+    this.scrollbar = options.scrollbar
+  }
 
-    this.visible = sizeRatio < 100
+  public updateFromLayout(): void {
+    super.updateFromLayout()
+
+    if (!this.parent) return
+
+    const scrollbar = this.scrollbar
+
+    const sizeRatio = scrollbar.scrollSize <= scrollbar.viewportSize ? 1 : scrollbar.viewportSize / scrollbar.scrollSize
+
+    const parentSize = scrollbar.orientation === "vertical" ? this.parent.height : this.parent.width
+    const resolvedSize = Math.max(1, Math.round(sizeRatio * parentSize))
+    const maxPos = parentSize - resolvedSize
+
+    if (scrollbar.orientation === "vertical") this._heightValue = resolvedSize
+    else this._widthValue = resolvedSize
+
+    const posRatio = scrollbar.scrollPosition / scrollbar.scrollSize
+    const pos = Math.min(maxPos, Math.ceil(posRatio * parentSize))
+
+    if (scrollbar.orientation === "vertical") this._translateY = pos
+    else this._translateX = pos
   }
 }
