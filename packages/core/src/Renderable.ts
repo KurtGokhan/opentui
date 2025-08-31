@@ -434,7 +434,7 @@ export abstract class Renderable extends EventEmitter {
 
   public set translateX(value: number) {
     this._translateX = value
-    this.needsUpdate()
+    this.requestRender()
   }
 
   public get translateY(): number {
@@ -443,7 +443,7 @@ export abstract class Renderable extends EventEmitter {
 
   public set translateY(value: number) {
     this._translateY = value
-    this.needsUpdate()
+    this.requestRender()
   }
 
   public get x(): number {
@@ -699,7 +699,7 @@ export abstract class Renderable extends EventEmitter {
 
     this._overflow = overflow
     this.layoutNode.yogaNode.setOverflow(parseOverflow(overflow))
-    this.needsUpdate()
+    this.requestRender()
   }
 
   public setPosition(position: Position): void {
@@ -759,7 +759,7 @@ export abstract class Renderable extends EventEmitter {
 
   public set flexWrap(wrap: WrapString) {
     this.layoutNode.yogaNode.setFlexWrap(parseWrap(wrap))
-    this.needsUpdate()
+    this.requestRender()
   }
 
   public set alignItems(alignItems: AlignString) {
@@ -774,7 +774,7 @@ export abstract class Renderable extends EventEmitter {
 
   public set alignSelf(alignSelf: AlignString) {
     this.layoutNode.yogaNode.setAlignSelf(parseAlign(alignSelf))
-    this.needsUpdate()
+    this.requestRender()
   }
 
   public set flexBasis(basis: number | "auto" | undefined) {
