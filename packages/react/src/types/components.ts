@@ -3,6 +3,8 @@ import type {
   ASCIIFontRenderable,
   BoxOptions,
   BoxRenderable,
+  ScrollBoxRenderable,
+  ScrollBoxOptions,
   InputRenderable,
   InputRenderableOptions,
   Renderable,
@@ -67,11 +69,13 @@ export type GetNonStyledProperties<TConstructor> =
     ? NonStyledProps | "content"
     : TConstructor extends RenderableConstructor<BoxRenderable>
       ? NonStyledProps | "title"
-      : TConstructor extends RenderableConstructor<ASCIIFontRenderable>
-        ? NonStyledProps | "text" | "selectable"
-        : TConstructor extends RenderableConstructor<InputRenderable>
-          ? NonStyledProps | "placeholder" | "value"
-          : NonStyledProps
+      : TConstructor extends RenderableConstructor<ScrollBoxRenderable>
+        ? NonStyledProps | "title" | "content"
+        : TConstructor extends RenderableConstructor<ASCIIFontRenderable>
+          ? NonStyledProps | "text" | "selectable"
+          : TConstructor extends RenderableConstructor<InputRenderable>
+            ? NonStyledProps | "placeholder" | "value"
+            : NonStyledProps
 
 // ============================================================================
 // Component Props System
@@ -97,6 +101,10 @@ export type TextProps = ComponentProps<TextOptions, TextRenderable> & {
 }
 
 export type BoxProps = ComponentProps<ContainerProps<BoxOptions>, BoxRenderable>
+
+export type ScrollBoxProps = ComponentProps<ContainerProps<ScrollBoxOptions>, ScrollBoxRenderable> & {
+  focused?: boolean
+}
 
 export type InputProps = ComponentProps<InputRenderableOptions, InputRenderable> & {
   focused?: boolean

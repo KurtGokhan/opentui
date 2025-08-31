@@ -2,6 +2,7 @@ import type * as React from "react"
 import type {
   AsciiFontProps,
   BoxProps,
+  ScrollBoxProps,
   InputProps,
   SelectProps,
   TabSelectProps,
@@ -31,5 +32,6 @@ export namespace JSX {
     select: SelectProps
     "ascii-font": AsciiFontProps
     "tab-select": TabSelectProps
+    "scroll-box": ScrollBoxProps
   }
 }
